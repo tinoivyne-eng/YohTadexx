@@ -4,15 +4,14 @@ import { useState } from "react";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
-
-const links = [
-  { name: "Home", path: "/" },
-  { name: "About", path: "/about" },
-  { name: "Studio", path: "/studio" },
-  { name: "Services", path: "/services" },
-  { name: "Portfolio", path: "/portfolio" },
-  { name: "Contact", path: "/contact" },
-];
+  const links = [
+    { name: "Home", path: "/" },
+    { name: "About", path: "/about" },
+    { name: "Studio", path: "/studio" },
+    { name: "Services", path: "/services" },
+    { name: "Portfolio", path: "/portfolio" },
+    { name: "Contact", path: "/contact" },
+  ];
 
   return (
     <nav className="bg-studio-black border-b border-studio-gray sticky top-0 z-50">
@@ -50,9 +49,15 @@ const links = [
         <div className="hidden md:flex items-center gap-4 font-mono text-sm uppercase tracking-widest">
           <NavLink
             to="/login"
-            className="border border-studio-gray hover:border-studio-bluelight text-studio-white/80 hover:text-studio-bluelight transition-all duration-300 px-5 py-2 rounded-md"
+            className="text-studio-white/70 hover:text-studio-bluelight transition-colors duration-300"
           >
             Log In
+          </NavLink>
+          <NavLink
+            to="/signup"
+            className="border border-studio-gray hover:border-studio-bluelight text-studio-white/80 hover:text-studio-bluelight transition-all duration-300 px-5 py-2 rounded-md"
+          >
+            Sign Up
           </NavLink>
           <NavLink
             to="/book"
@@ -88,7 +93,7 @@ const links = [
       {/* Mobile menu */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-          isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          isOpen ? "max-h-[32rem] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         <div className="flex flex-col gap-4 px-6 pb-6 font-mono text-sm uppercase tracking-widest">
@@ -107,12 +112,20 @@ const links = [
               {link.name}
             </NavLink>
           ))}
+
           <NavLink
             to="/login"
             onClick={() => setIsOpen(false)}
-            className="border border-studio-gray text-studio-white/80 px-5 py-2 rounded-md text-center mt-2"
+            className="text-studio-white/80 text-center mt-2"
           >
             Log In
+          </NavLink>
+          <NavLink
+            to="/signup"
+            onClick={() => setIsOpen(false)}
+            className="border border-studio-gray text-studio-white/80 px-5 py-2 rounded-md text-center"
+          >
+            Sign Up
           </NavLink>
           <NavLink
             to="/book"

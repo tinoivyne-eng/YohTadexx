@@ -98,6 +98,8 @@ export default function Contact() {
             <a href="#" className="text-studio-white/60 hover:text-studio-bluelight transition-colors">Instagram</a>
             <a href="#" className="text-studio-white/60 hover:text-studio-bluelight transition-colors">YouTube</a>
             <a href="#" className="text-studio-white/60 hover:text-studio-bluelight transition-colors">Spotify</a>
+            <a href="#" className="text-studio-white/60 hover:text-studio-bluelight transition-colors">TikTok</a>
+            <a href="#" className="text-studio-white/60 hover:text-studio-bluelight transition-colors">FaceBook</a>
           </div>
         </div>
 

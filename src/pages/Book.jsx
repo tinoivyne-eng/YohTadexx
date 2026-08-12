@@ -1,4 +1,6 @@
 import { useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function Book() {
   const [formData, setFormData] = useState({
@@ -6,10 +8,10 @@ export default function Book() {
     email: "",
     phone: "",
     service: "Recording",
-    date: "",
     time: "",
     notes: "",
   });
+  const [selectedDate, setSelectedDate] = useState(null);
   const [status, setStatus] = useState(null); // null | "sending" | "success" | "error"
 
   const handleChange = (e) => {
@@ -18,32 +20,36 @@ export default function Book() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!selectedDate || !formData.time) {
+      setStatus("error");
+      return;
+    }
+
     setStatus("sending");
+
+    const payload = {
+      ...formData,
+      date: selectedDate.toLocaleDateString(),
+    };
 
     try {
       // TODO: swap this block for Supabase insert later, e.g.:
-      // const { error } = await supabase.from("bookings").insert([formData]);
+      // const { error } = await supabase.from("bookings").insert([payload]);
       const res = await fetch("https://formspree.io/f/YOUR_FORM_ID", {
         method: "POST",
         headers: { Accept: "application/json" },
         body: (() => {
           const fd = new FormData();
-          Object.entries(formData).forEach(([k, v]) => fd.append(k, v));
+          Object.entries(payload).forEach(([k, v]) => fd.append(k, v));
           return fd;
         })(),
       });
 
       if (res.ok) {
         setStatus("success");
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          service: "Recording",
-          date: "",
-          time: "",
-          notes: "",
-        });
+        setFormData({ name: "", email: "", phone: "", service: "Recording", time: "", notes: "" });
+        setSelectedDate(null);
       } else {
         setStatus("error");
       }
@@ -133,7 +139,7 @@ export default function Book() {
                 <option>Recording</option>
                 <option>Mixing</option>
                 <option>Mastering</option>
-                <option>Beat Remake</option>
+                   <option>Beat Remake</option>
                 <option>Beat Leasing</option>
               </select>
             </div>
@@ -144,13 +150,14 @@ export default function Book() {
               <label className="block text-studio-white/70 font-mono text-xs uppercase tracking-widest mb-2">
                 Preferred Date
               </label>
-              <input
-                type="date"
-                name="date"
-                required
-                value={formData.date}
-                onChange={handleChange}
+              <DatePicker
+                selected={selectedDate}
+                onChange={(date) => setSelectedDate(date)}
+                minDate={new Date()}
+                placeholderText="Select a date"
+                dateFormat="MMMM d, yyyy"
                 className="w-full bg-studio-black border border-studio-gray rounded-md px-4 py-3 text-studio-white focus:outline-none focus:border-studio-bluelight transition-colors"
+                calendarClassName="studio-datepicker"
               />
             </div>
             <div>
@@ -197,7 +204,7 @@ export default function Book() {
           )}
           {status === "error" && (
             <p className="text-center text-red-400 font-body">
-              Something went wrong. Please try again or contact us directly.
+              Please select a date and time, or try again.
             </p>
           )}
         </form>

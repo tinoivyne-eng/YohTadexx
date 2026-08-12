@@ -8,6 +8,8 @@ import Book from "./pages/Book";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import Studio from "./pages/Studio";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
             <Route path="/studio" element={<Studio />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
           </Routes>
         </main>
         <Footer />
