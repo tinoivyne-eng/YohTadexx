@@ -1,11 +1,13 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const { user, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
+  const accountRef = useRef(null);
 
   const links = [
     { name: "Home", path: "/" },
@@ -18,10 +20,22 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     if (!window.confirm("Are you sure you want to log out?")) return;
+    setAccountOpen(false);
     await signOut();
     setIsOpen(false);
     navigate("/");
   };
+
+  // Close the account dropdown if you click anywhere outside it
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (accountRef.current && !accountRef.current.contains(e.target)) {
+        setAccountOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <nav className="bg-studio-black border-b border-studio-gray sticky top-0 z-50">
@@ -68,22 +82,54 @@ export default function Navbar() {
         </div>
 
         {/* Right side buttons (desktop) */}
-        <div className="hidden md:flex items-center gap-4 font-mono text-sm uppercase tracking-widest">
+        <div className="hidden md:flex items-center gap-5 font-mono text-sm uppercase tracking-widest pl-6 border-l border-studio-gray">
           {user ? (
-            <>
-              <NavLink
-                to="/my-messages"
-                className="text-studio-white/70 hover:text-studio-bluelight transition-colors duration-300"
-              >
-                My Messages
-              </NavLink>
+            <div className="relative" ref={accountRef}>
               <button
-                onClick={handleLogout}
-                className="text-studio-white/70 hover:text-studio-bluelight transition-colors duration-300"
+                onClick={() => setAccountOpen(!accountOpen)}
+                className="flex items-center gap-2 text-studio-white/70 hover:text-studio-bluelight transition-colors duration-300"
               >
-                Log Out
+                <span className="w-8 h-8 rounded-full bg-studio-charcoal border border-studio-gray flex items-center justify-center text-studio-bluelight text-xs font-bold">
+                  {(user.email || "?")[0].toUpperCase()}
+                </span>
+                Account
+                <svg
+                  width="14"
+                  height="14"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  className={`transition-transform duration-300 ${accountOpen ? "rotate-180" : ""}`}
+                >
+                  <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M6 9l6 6 6-6" />
+                </svg>
               </button>
-            </>
+
+              {accountOpen && (
+                <div className="absolute right-0 mt-3 w-48 bg-studio-charcoal border border-studio-gray rounded-md overflow-hidden shadow-xl">
+                  <NavLink
+                    to="/my-bookings"
+                    onClick={() => setAccountOpen(false)}
+                    className="block px-4 py-3 text-studio-white/80 hover:bg-studio-black hover:text-studio-bluelight transition-colors text-xs"
+                  >
+                    My Bookings
+                  </NavLink>
+                  <NavLink
+                    to="/my-messages"
+                    onClick={() => setAccountOpen(false)}
+                    className="block px-4 py-3 text-studio-white/80 hover:bg-studio-black hover:text-studio-bluelight transition-colors text-xs border-t border-studio-gray"
+                  >
+                    My Messages
+                  </NavLink>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-3 text-red-400 hover:bg-studio-black transition-colors text-xs border-t border-studio-gray"
+                  >
+                    Log Out
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <>
               <NavLink
@@ -169,7 +215,19 @@ export default function Navbar() {
           )}
 
           {user ? (
-            <>
+            <div className="border-t border-studio-gray pt-4 mt-2 flex flex-col gap-4">
+              <p className="text-studio-white/40 text-xs">Account</p>
+              <NavLink
+                to="/my-bookings"
+                onClick={() => setIsOpen(false)}
+                className={({ isActive }) =>
+                  `transition-all duration-300 ${
+                    isActive ? "text-studio-bluelight translate-x-1" : "text-studio-white/70 hover:text-studio-bluelight hover:translate-x-1"
+                  }`
+                }
+              >
+                My Bookings
+              </NavLink>
               <NavLink
                 to="/my-messages"
                 onClick={() => setIsOpen(false)}
@@ -183,11 +241,11 @@ export default function Navbar() {
               </NavLink>
               <button
                 onClick={handleLogout}
-                className="text-studio-white/80 text-center mt-2 border border-studio-gray rounded-md py-2"
+                className="text-studio-white/80 text-center border border-studio-gray rounded-md py-2"
               >
                 Log Out
               </button>
-            </>
+            </div>
           ) : (
             <>
               <NavLink

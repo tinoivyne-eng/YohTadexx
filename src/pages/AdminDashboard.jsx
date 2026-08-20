@@ -9,16 +9,21 @@ const statusColors = {
   completed: "text-green-400 border-green-400/40",
 };
 
+// ================= BOOKINGS PANEL =================
+
 function BookingsPanel() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchBookings = async () => {
     setLoading(true);
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("bookings")
       .select("*")
       .order("created_at", { ascending: false });
+
+    if (error) console.error(error);
+
     setBookings(data || []);
     setLoading(false);
   };
@@ -62,12 +67,15 @@ function BookingsPanel() {
                 {b.status}
               </span>
             </div>
+
             <p className="text-studio-white/60 text-sm font-body">
               {b.service} · {b.session_date} at {b.session_time}
             </p>
+
             <p className="text-studio-white/50 text-sm font-body">
               {b.email} {b.phone && `· ${b.phone}`}
             </p>
+
             {b.notes && (
               <p className="text-studio-white/50 text-sm font-body mt-1 italic">"{b.notes}"</p>
             )}
@@ -84,6 +92,7 @@ function BookingsPanel() {
               <option value="declined">Declined</option>
               <option value="completed">Completed</option>
             </select>
+
             <button
               onClick={() => deleteBooking(b.id)}
               className="border border-red-400/40 text-red-400 hover:bg-red-400/10 transition-colors px-3 py-2 rounded-md"
@@ -97,6 +106,8 @@ function BookingsPanel() {
   );
 }
 
+// ================= MESSAGES PANEL =================
+
 function MessagesPanel() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -105,10 +116,13 @@ function MessagesPanel() {
 
   const fetchMessages = async () => {
     setLoading(true);
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("messages")
       .select("*")
       .order("created_at", { ascending: false });
+
+    if (error) console.error(error);
+
     setMessages(data || []);
     setLoading(false);
   };
@@ -133,10 +147,16 @@ function MessagesPanel() {
     if (!replyText || !replyText.trim()) return;
 
     setSendingReply(id);
+
     await supabase
       .from("messages")
-      .update({ admin_reply: replyText, replied_at: new Date().toISOString(), read: true })
+      .update({
+        admin_reply: replyText,
+        replied_at: new Date().toISOString(),
+        read: true,
+      })
       .eq("id", id);
+
     setReplyDrafts({ ...replyDrafts, [id]: "" });
     setSendingReply(null);
     fetchMessages();
@@ -159,6 +179,7 @@ function MessagesPanel() {
           {unreadCount} unread
         </p>
       )}
+
       <div className="space-y-4">
         {messages.map((m) => (
           <div
@@ -171,17 +192,20 @@ function MessagesPanel() {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-1">
                   <h3 className="font-mono text-studio-white font-bold">{m.name}</h3>
+
                   {!m.read && (
-                    <span className="text-xs font-mono uppercase tracking-widest border border-studio-bluelight/40 text-studio-bluelight rounded-full px-2 py-0.5">
+                    <span className="text-xs font-mono uppercase border border-studio-bluelight/40 text-studio-bluelight rounded-full px-2 py-0.5">
                       New
                     </span>
                   )}
+
                   {m.admin_reply && (
-                    <span className="text-xs font-mono uppercase tracking-widest border border-green-400/40 text-green-400 rounded-full px-2 py-0.5">
+                    <span className="text-xs font-mono uppercase border border-green-400/40 text-green-400 rounded-full px-2 py-0.5">
                       Replied
                     </span>
                   )}
                 </div>
+
                 <p className="text-studio-white/50 text-sm font-body mb-2">{m.email}</p>
                 <p className="text-studio-white/70 font-body">{m.message}</p>
                 <p className="text-studio-white/40 text-xs font-mono mt-2">
@@ -189,45 +213,43 @@ function MessagesPanel() {
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-2 font-mono text-xs uppercase tracking-widest">
+              <div className="flex flex-wrap gap-2 font-mono text-xs uppercase">
                 <button
                   onClick={() => markAsRead(m.id, m.read)}
-                  className="border border-studio-gray hover:border-studio-bluelight text-studio-white/70 hover:text-studio-bluelight transition-all px-3 py-2 rounded-md"
+                  className="border border-studio-gray text-studio-white/70 px-3 py-2 rounded-md"
                 >
                   {m.read ? "Mark Unread" : "Mark Read"}
                 </button>
+
                 <button
                   onClick={() => deleteMessage(m.id)}
-                  className="border border-red-400/40 text-red-400 hover:bg-red-400/10 transition-colors px-3 py-2 rounded-md"
+                  className="border border-red-400/40 text-red-400 px-3 py-2 rounded-md"
                 >
                   Delete
                 </button>
               </div>
             </div>
 
-            {/* Existing reply, if any */}
             {m.admin_reply && (
               <div className="mt-4 pl-4 border-l-2 border-studio-bluelight/40">
-                <p className="text-studio-bluelight text-xs font-mono uppercase tracking-widest mb-1">
-                  Your Reply
-                </p>
-                <p className="text-studio-white/70 font-body">{m.admin_reply}</p>
+                <p className="text-studio-bluelight text-xs uppercase">Your Reply</p>
+                <p className="text-studio-white/70">{m.admin_reply}</p>
               </div>
             )}
 
-            {/* Reply box */}
             <div className="mt-4 flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 placeholder={m.admin_reply ? "Send a new reply..." : "Type a reply..."}
                 value={replyDrafts[m.id] || ""}
                 onChange={(e) => setReplyDrafts({ ...replyDrafts, [m.id]: e.target.value })}
-                className="flex-1 bg-studio-charcoal border border-studio-gray rounded-md px-4 py-2 text-studio-white text-sm focus:outline-none focus:border-studio-bluelight transition-colors"
+                className="flex-1 bg-studio-charcoal border border-studio-gray rounded-md px-4 py-2 text-studio-white"
               />
+
               <button
                 onClick={() => sendReply(m.id)}
                 disabled={sendingReply === m.id}
-                className="bg-studio-blue hover:bg-studio-bluelight disabled:opacity-50 transition-all duration-300 text-white px-5 py-2 rounded-md font-mono uppercase tracking-widest text-xs font-semibold"
+                className="bg-studio-blue text-white px-5 py-2 rounded-md"
               >
                 {sendingReply === m.id ? "Sending..." : "Reply"}
               </button>
@@ -239,7 +261,196 @@ function MessagesPanel() {
   );
 }
 
-export default function AdminDashboard() {
+// ================= SERVICES PANEL =================
+
+function ServicesPanel() {
+  const emptyForm = { title: "", price: "", description: "", features: "" };
+
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState(emptyForm);
+  const [editingId, setEditingId] = useState(null);
+  const [saving, setSaving] = useState(false);
+
+  const fetchServices = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("services")
+      .select("*")
+      .order("sort_order", { ascending: true });
+
+    if (error) console.error(error);
+
+    setServices(data || []);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const startEdit = (service) => {
+    setEditingId(service.id);
+    setForm({
+      title: service.title,
+      price: service.price,
+      description: service.description || "",
+      features: (service.features || []).join(", "),
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setForm(emptyForm);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+
+    const payload = {
+      title: form.title,
+      price: form.price,
+      description: form.description,
+      features: form.features
+        .split(",")
+        .map((f) => f.trim())
+        .filter(Boolean),
+    };
+
+    if (editingId) {
+      await supabase.from("services").update(payload).eq("id", editingId);
+    } else {
+      await supabase.from("services").insert([{ ...payload, sort_order: services.length }]);
+    }
+
+    setSaving(false);
+    cancelEdit();
+    fetchServices();
+  };
+
+  const deleteService = async (id) => {
+    if (!window.confirm("Delete this service permanently?")) return;
+    await supabase.from("services").delete().eq("id", id);
+    fetchServices();
+  };
+
+  return (
+    <div>
+      <form
+        onSubmit={handleSubmit}
+        className="bg-studio-black border border-studio-gray rounded-xl p-6 mb-8 space-y-4"
+      >
+        <h3 className="font-mono text-studio-white uppercase tracking-widest text-sm font-bold">
+          {editingId ? "Edit Service" : "Add New Service"}
+        </h3>
+
+        <input
+          type="text"
+          name="title"
+          placeholder="Title"
+          required
+          value={form.title}
+          onChange={handleChange}
+          className="w-full bg-studio-charcoal border border-studio-gray rounded-md px-4 py-2 text-studio-white"
+        />
+
+        <input
+          type="text"
+          name="price"
+          placeholder="Price"
+          required
+          value={form.price}
+          onChange={handleChange}
+          className="w-full bg-studio-charcoal border border-studio-gray rounded-md px-4 py-2 text-studio-white"
+        />
+
+        <textarea
+          name="description"
+          placeholder="Description"
+          value={form.description}
+          onChange={handleChange}
+          className="w-full bg-studio-charcoal border border-studio-gray rounded-md px-4 py-2 text-studio-white"
+        />
+
+        <input
+          type="text"
+          name="features"
+          placeholder="Features separated by commas"
+          value={form.features}
+          onChange={handleChange}
+          className="w-full bg-studio-charcoal border border-studio-gray rounded-md px-4 py-2 text-studio-white"
+        />
+
+        <div className="flex gap-3">
+          <button
+            type="submit"
+            disabled={saving}
+            className="bg-studio-blue text-white px-6 py-2 rounded-md"
+          >
+            {saving ? "Saving..." : editingId ? "Update Service" : "Add Service"}
+          </button>
+
+          {editingId && (
+            <button
+              type="button"
+              onClick={cancelEdit}
+              className="border border-studio-gray text-white px-6 py-2 rounded-md"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+      </form>
+
+      {loading ? (
+        <p className="text-studio-white/60">Loading services...</p>
+      ) : services.length === 0 ? (
+        <p className="text-studio-white/60">No services yet.</p>
+      ) : (
+        <div className="grid md:grid-cols-2 gap-4">
+          {services.map((s) => (
+            <div key={s.id} className="bg-studio-black border border-studio-gray rounded-xl p-5">
+              <h4 className="text-white font-bold">{s.title}</h4>
+              <p className="text-studio-bluelight">{s.price}</p>
+              <p className="text-studio-white/60">{s.description}</p>
+
+              <ul className="text-sm text-studio-white/50 mt-2">
+                {s.features?.map((f, i) => (
+                  <li key={i}>• {f}</li>
+                ))}
+              </ul>
+
+              <div className="flex gap-2 mt-4">
+                <button
+                  onClick={() => startEdit(s)}
+                  className="border border-studio-gray text-white px-3 py-1 rounded"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onClick={() => deleteService(s.id)}
+                  className="border border-red-400 text-red-400 px-3 py-1 rounded"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ================= ADMIN DASHBOARD =================
+
+function AdminDashboard() {
   const [tab, setTab] = useState("bookings");
   const { profile, signOut } = useAuth();
 
@@ -263,24 +474,25 @@ export default function AdminDashboard() {
             Welcome, {profile?.name || "Admin"}
           </h1>
         </div>
+
         <button
           onClick={signOut}
-          className="border border-studio-gray hover:border-studio-bluelight text-studio-white/70 hover:text-studio-bluelight transition-all duration-300 px-5 py-2 rounded-md font-mono text-xs uppercase tracking-widest"
+          className="border border-studio-gray text-studio-white px-5 py-2 rounded-md"
         >
           Log Out
         </button>
       </div>
 
       {/* Tabs */}
-      <div className="flex flex-wrap gap-2 mb-8 font-mono text-xs uppercase tracking-widest">
+      <div className="flex flex-wrap gap-2 mb-8 font-mono text-xs uppercase">
         {tabs.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`px-4 py-2 rounded-md border transition-all duration-300 ${
+            className={`px-4 py-2 rounded-md border ${
               tab === t.id
                 ? "bg-studio-blue border-studio-blue text-white"
-                : "border-studio-gray text-studio-white/60 hover:border-studio-bluelight hover:text-studio-bluelight"
+                : "border-studio-gray text-studio-white/60"
             }`}
           >
             {t.label}
@@ -288,23 +500,26 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Panel */}
+      {/* Content */}
       <div className="bg-studio-charcoal border border-studio-gray rounded-2xl p-6 md:p-8">
         {tab === "bookings" && <BookingsPanel />}
         {tab === "messages" && <MessagesPanel />}
-        {tab === "services" && (
-          <p className="text-studio-white/60 font-body">Services editor — coming next.</p>
-        )}
+        {tab === "services" && <ServicesPanel />}
+
         {tab === "portfolio" && (
-          <p className="text-studio-white/60 font-body">Portfolio editor — coming next.</p>
+          <p className="text-studio-white/60">Portfolio editor — coming next.</p>
         )}
+
         {tab === "studio" && (
-          <p className="text-studio-white/60 font-body">Studio photo manager — coming next.</p>
+          <p className="text-studio-white/60">Studio photo manager — coming next.</p>
         )}
+
         {tab === "users" && (
-          <p className="text-studio-white/60 font-body">Admin access management — coming next.</p>
+          <p className="text-studio-white/60">Admin access management — coming next.</p>
         )}
       </div>
     </div>
   );
 }
+
+export default AdminDashboard;

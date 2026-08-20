@@ -14,6 +14,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AdminDashboard from "./pages/AdminDashboard";
 import MyMessages from "./pages/MyMessages";
+import MyBookings from "./pages/MyBookings";
 
 function App() {
   return (
@@ -32,23 +33,10 @@ function App() {
               <Route path="/studio" element={<Studio />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
-              <Route
-                path="/my-messages"
-                  element={
-                  <ProtectedRoute>
-                  <MyMessages />
-                </ProtectedRoute>
-                }
-              />
+              <Route path="/my-messages" element={<ProtectedRoute> <MyMessages /> </ProtectedRoute>}/>
+              <Route path="/admin" element={<ProtectedRoute adminOnly> <AdminDashboard /> </ProtectedRoute>}/>
+              <Route path="/my-bookings" element={<ProtectedRoute> <MyBookings /> </ProtectedRoute>}/>
               
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute adminOnly>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                }
-              />
             </Routes>
           </main>
           <Footer />
