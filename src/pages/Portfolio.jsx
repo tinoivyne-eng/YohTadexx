@@ -6,42 +6,42 @@ const tracks = [
     artist: "Kay Sol",
     genre: "R&B",
     cover: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80",
-    audio: "",
+    youtubeId: "", // paste the YouTube video ID here, e.g. "dQw4w9WgXcQ"
   },
   {
     title: "No Ceiling",
     artist: "Rell Tha Don",
     genre: "Hip-Hop",
     cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=600&q=80",
-    audio: "",
+    youtubeId: "",
   },
   {
     title: "Golden Hour",
     artist: "Ava Lune",
     genre: "Afrobeats",
     cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80",
-    audio: "",
+    youtubeId: "",
   },
   {
     title: "Static",
     artist: "Nova Wren",
     genre: "Alt-Pop",
     cover: "https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?auto=format&fit=crop&w=600&q=80",
-    audio: "",
+    youtubeId: "",
   },
   {
     title: "Concrete Dreams",
     artist: "Jae Marlo",
     genre: "Hip-Hop",
     cover: "https://images.unsplash.com/photo-1524650359799-5be906931e5a?auto=format&fit=crop&w=600&q=80",
-    audio: "",
+    youtubeId: "",
   },
   {
     title: "Echoes",
     artist: "Kay Sol",
     genre: "R&B",
     cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=600&q=80",
-    audio: "",
+    youtubeId: "",
   },
 ];
 
@@ -49,7 +49,7 @@ const genres = ["All", "Hip-Hop", "R&B", "Afrobeats", "Alt-Pop"];
 
 export default function Portfolio() {
   const [filter, setFilter] = useState("All");
-  const [playing, setPlaying] = useState(null);
+  const [activeTrack, setActiveTrack] = useState(null); // holds the track object for the open modal
 
   const filtered = filter === "All" ? tracks : tracks.filter((t) => t.genre === filter);
 
@@ -106,20 +106,13 @@ export default function Portfolio() {
               >
                 <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
                   <button
-                    onClick={() => setPlaying(playing === i ? null : i)}
+                    onClick={() => setActiveTrack(t)}
                     className="w-14 h-14 rounded-full bg-studio-blue/90 hover:bg-studio-bluelight flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100"
-                    aria-label="Play preview"
+                    aria-label={`Play ${t.title}`}
                   >
-                    {playing === i ? (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <rect x="6" y="5" width="4" height="14" />
-                        <rect x="14" y="5" width="4" height="14" />
-                      </svg>
-                    ) : (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    )}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
                   </button>
                 </div>
               </div>
@@ -136,6 +129,55 @@ export default function Portfolio() {
           ))}
         </div>
       </section>
+
+      {/* Video Modal */}
+      {activeTrack && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center px-4"
+          onClick={() => setActiveTrack(null)}
+        >
+          <div
+            className="w-full max-w-3xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="font-mono text-studio-white uppercase tracking-wide font-bold">
+                  {activeTrack.title}
+                </h3>
+                <p className="text-studio-white/60 text-sm font-body">{activeTrack.artist}</p>
+              </div>
+              <button
+                onClick={() => setActiveTrack(null)}
+                className="text-studio-white/70 hover:text-studio-bluelight transition-colors"
+                aria-label="Close"
+              >
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeWidth="2" strokeLinecap="round" d="M6 6l12 12M6 18L18 6" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="aspect-video w-full rounded-xl overflow-hidden border border-studio-gray">
+              {activeTrack.youtubeId ? (
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={`https://www.youtube.com/embed/${activeTrack.youtubeId}?autoplay=1`}
+                  title={activeTrack.title}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <div className="w-full h-full bg-studio-charcoal flex items-center justify-center text-studio-white/50 font-body text-sm">
+                  No video linked yet for this track.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

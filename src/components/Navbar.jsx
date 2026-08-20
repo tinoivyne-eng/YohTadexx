@@ -1,8 +1,11 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, isAdmin, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const links = [
     { name: "Home", path: "/" },
@@ -12,6 +15,13 @@ export default function Navbar() {
     { name: "Portfolio", path: "/portfolio" },
     { name: "Contact", path: "/contact" },
   ];
+
+  const handleLogout = async () => {
+    if (!window.confirm("Are you sure you want to log out?")) return;
+    await signOut();
+    setIsOpen(false);
+    navigate("/");
+  };
 
   return (
     <nav className="bg-studio-black border-b border-studio-gray sticky top-0 z-50">
@@ -43,22 +53,53 @@ export default function Navbar() {
               {link.name}
             </NavLink>
           ))}
+          {isAdmin && (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                `relative py-1 transition-colors duration-300 ${
+                  isActive ? "text-studio-bluelight" : "text-studio-white/60 hover:text-studio-white"
+                }`
+              }
+            >
+              Admin
+            </NavLink>
+          )}
         </div>
 
         {/* Right side buttons (desktop) */}
         <div className="hidden md:flex items-center gap-4 font-mono text-sm uppercase tracking-widest">
-          <NavLink
-            to="/login"
-            className="text-studio-white/70 hover:text-studio-bluelight transition-colors duration-300"
-          >
-            Log In
-          </NavLink>
-          <NavLink
-            to="/signup"
-            className="border border-studio-gray hover:border-studio-bluelight text-studio-white/80 hover:text-studio-bluelight transition-all duration-300 px-5 py-2 rounded-md"
-          >
-            Sign Up
-          </NavLink>
+          {user ? (
+            <>
+              <NavLink
+                to="/my-messages"
+                className="text-studio-white/70 hover:text-studio-bluelight transition-colors duration-300"
+              >
+                My Messages
+              </NavLink>
+              <button
+                onClick={handleLogout}
+                className="text-studio-white/70 hover:text-studio-bluelight transition-colors duration-300"
+              >
+                Log Out
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink
+                to="/login"
+                className="text-studio-white/70 hover:text-studio-bluelight transition-colors duration-300"
+              >
+                Log In
+              </NavLink>
+              <NavLink
+                to="/signup"
+                className="border border-studio-gray hover:border-studio-bluelight text-studio-white/80 hover:text-studio-bluelight transition-all duration-300 px-5 py-2 rounded-md"
+              >
+                Sign Up
+              </NavLink>
+            </>
+          )}
           <NavLink
             to="/book"
             className="bg-studio-blue hover:bg-studio-bluelight hover:-translate-y-0.5 hover:shadow-lg hover:shadow-studio-blue/40 transition-all duration-300 text-white px-5 py-2 rounded-md"
@@ -93,7 +134,7 @@ export default function Navbar() {
       {/* Mobile menu */}
       <div
         className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-          isOpen ? "max-h-[32rem] opacity-100" : "max-h-0 opacity-0"
+          isOpen ? "max-h-[40rem] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         <div className="flex flex-col gap-4 px-6 pb-6 font-mono text-sm uppercase tracking-widest">
@@ -113,20 +154,58 @@ export default function Navbar() {
             </NavLink>
           ))}
 
-          <NavLink
-            to="/login"
-            onClick={() => setIsOpen(false)}
-            className="text-studio-white/80 text-center mt-2"
-          >
-            Log In
-          </NavLink>
-          <NavLink
-            to="/signup"
-            onClick={() => setIsOpen(false)}
-            className="border border-studio-gray text-studio-white/80 px-5 py-2 rounded-md text-center"
-          >
-            Sign Up
-          </NavLink>
+          {isAdmin && (
+            <NavLink
+              to="/admin"
+              onClick={() => setIsOpen(false)}
+              className={({ isActive }) =>
+                `transition-all duration-300 ${
+                  isActive ? "text-studio-bluelight translate-x-1" : "text-studio-white/70 hover:text-studio-bluelight hover:translate-x-1"
+                }`
+              }
+            >
+              Admin
+            </NavLink>
+          )}
+
+          {user ? (
+            <>
+              <NavLink
+                to="/my-messages"
+                onClick={() => setIsOpen(false)}
+                className={({ isActive }) =>
+                  `transition-all duration-300 ${
+                    isActive ? "text-studio-bluelight translate-x-1" : "text-studio-white/70 hover:text-studio-bluelight hover:translate-x-1"
+                  }`
+                }
+              >
+                My Messages
+              </NavLink>
+              <button
+                onClick={handleLogout}
+                className="text-studio-white/80 text-center mt-2 border border-studio-gray rounded-md py-2"
+              >
+                Log Out
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink
+                to="/login"
+                onClick={() => setIsOpen(false)}
+                className="text-studio-white/80 text-center mt-2"
+              >
+                Log In
+              </NavLink>
+              <NavLink
+                to="/signup"
+                onClick={() => setIsOpen(false)}
+                className="border border-studio-gray text-studio-white/80 px-5 py-2 rounded-md text-center"
+              >
+                Sign Up
+              </NavLink>
+            </>
+          )}
           <NavLink
             to="/book"
             onClick={() => setIsOpen(false)}
