@@ -849,10 +849,11 @@ function UsersPanel() {
         <form onSubmit={handleUnlock} className="space-y-4">
           <input
             type="password"
+            name="admin-gate-password"
             placeholder="Your password"
             value={gatePassword}
             onChange={(e) => setGatePassword(e.target.value)}
-            autoComplete="new-password"
+            autoComplete="off"
             required
             className="w-full bg-studio-black border border-studio-gray rounded-md px-4 py-3 text-studio-white text-sm focus:outline-none focus:border-studio-bluelight text-center"
           />
@@ -1034,10 +1035,11 @@ function UsersPanelContent() {
 
             <input
               type="password"
+              name="admin-confirm-password"
               placeholder="Your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
+              autoComplete="off"
               className="w-full bg-studio-black border border-studio-gray rounded-md px-4 py-2 text-studio-white text-sm mb-3 focus:outline-none focus:border-studio-bluelight"
             />
 
