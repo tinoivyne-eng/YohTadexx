@@ -854,6 +854,8 @@ function UsersPanel() {
             value={gatePassword}
             onChange={(e) => setGatePassword(e.target.value)}
             autoComplete="off"
+            readOnly
+            onFocus={(e) => e.target.removeAttribute("readonly")}
             required
             className="w-full bg-studio-black border border-studio-gray rounded-md px-4 py-3 text-studio-white text-sm focus:outline-none focus:border-studio-bluelight text-center"
           />
@@ -1040,6 +1042,8 @@ function UsersPanelContent() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="off"
+              readOnly
+              onFocus={(e) => e.target.removeAttribute("readonly")}
               className="w-full bg-studio-black border border-studio-gray rounded-md px-4 py-2 text-studio-white text-sm mb-3 focus:outline-none focus:border-studio-bluelight"
             />
 
