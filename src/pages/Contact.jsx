@@ -128,9 +128,9 @@ export default function Contact() {
             </div>
 
             <div className="flex gap-4 mt-10 font-mono text-xs uppercase tracking-widest">
-              <a href="#" className="text-studio-white/60 hover:text-studio-bluelight transition-colors">Instagram</a>
-              <a href="#" className="text-studio-white/60 hover:text-studio-bluelight transition-colors">YouTube</a>
-              <a href="#" className="text-studio-white/60 hover:text-studio-bluelight transition-colors">Spotify</a>
+              <span className="text-studio-white/30 cursor-not-allowed">Instagram</span>
+              <span className="text-studio-white/30 cursor-not-allowed">YouTube</span>
+              <span className="text-studio-white/30 cursor-not-allowed">Spotify</span>
             </div>
           </div>
 

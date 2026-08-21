@@ -817,13 +817,6 @@ function UsersPanel() {
   const [gateError, setGateError] = useState("");
   const [gateLoading, setGateLoading] = useState(false);
 
-  const [profiles, setProfiles] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [confirmTarget, setConfirmTarget] = useState(null);
-  const [password, setPassword] = useState("");
-  const [confirmError, setConfirmError] = useState("");
-  const [confirmLoading, setConfirmLoading] = useState(false);
-
   const handleUnlock = async (e) => {
     e.preventDefault();
     setGateLoading(true);
