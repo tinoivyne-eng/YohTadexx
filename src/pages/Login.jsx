@@ -58,9 +58,17 @@ export default function Login() {
           </div>
 
           <div>
-            <label className="block text-studio-white/70 font-mono text-xs uppercase tracking-widest mb-2">
-              Password
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-studio-white/70 font-mono text-xs uppercase tracking-widest">
+                Password
+              </label>
+              <Link
+                to="/forgot-password"
+                className="text-studio-bluelight/80 hover:text-studio-bluelight font-mono text-xs uppercase tracking-widest transition-colors"
+              >
+                Forgot?
+              </Link>
+            </div>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -79,12 +87,22 @@ export default function Login() {
               >
                 {showPassword ? (
                   <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M17.94 17.94A10.94 10.94 0 0112 20c-5.5 0-9.5-4.5-10-8a15.6 15.6 0 014.22-5.94M9.9 4.24A9.6 9.6 0 0112 4c5.5 0 9.5 4.5 10 8a15.5 15.5 0 01-1.86 3.19M14.12 14.12a3 3 0 11-4.24-4.24" />
+                    <path
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M17.94 17.94A10.94 10.94 0 0112 20c-5.5 0-9.5-4.5-10-8a15.6 15.6 0 014.22-5.94M9.9 4.24A9.6 9.6 0 0112 4c5.5 0 9.5 4.5 10 8a15.5 15.5 0 01-1.86 3.19M14.12 14.12a3 3 0 11-4.24-4.24"
+                    />
                     <line x1="2" y1="2" x2="22" y2="22" strokeWidth="2" strokeLinecap="round" />
                   </svg>
                 ) : (
                   <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M2 12s3.5-8 10-8 10 8 10 8-3.5 8-10 8-10-8-10-8z" />
+                    <path
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M2 12s3.5-8 10-8 10 8 10 8-3.5 8-10 8-10-8-10-8z"
+                    />
                     <circle cx="12" cy="12" r="3" strokeWidth="2" />
                   </svg>
                 )}

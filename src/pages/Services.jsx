@@ -1,33 +1,26 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
-const services = [
-  {
-    title: "Recording",
-    price: "From $50/hr",
-    desc: "Full studio session with professional mic setup, acoustically treated booth, and engineer on hand.",
-    features: ["Pro vocal booth", "Industry-grade mics", "Engineer included", "Instant rough mix"],
-  },
-  {
-    title: "Mixing",
-    price: "From $150/track",
-    desc: "Balance, depth, and clarity — your track polished to translate on any speaker or system.",
-    features: ["Up to 3 revisions", "Stem delivery", "Reference-matched", "48hr turnaround"],
-  },
-  {
-    title: "Mastering",
-    price: "From $80/track",
-    desc: "The final polish — loudness, punch, and consistency, ready for streaming or radio.",
-    features: ["Streaming-ready LUFS", "WAV + MP3 delivery", "A/B reference check", "24hr turnaround"],
-  },
-  {
-    title: "Beat Leasing",
-    price: "From $30/beat",
-    desc: "Browse original instrumentals across genres, licensed for your next release.",
-    features: ["MP3 + WAV leases", "Exclusive rights available", "Trackout stems option", "Instant delivery"],
-  },
-];
+import { supabase } from "../supabaseClient";
 
 export default function Services() {
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      const { data, error } = await supabase
+        .from("services")
+        .select("*")
+        .order("sort_order", { ascending: true });
+
+      if (error) console.error(error);
+
+      setServices(data || []);
+      setLoading(false);
+    };
+    fetchServices();
+  }, []);
+
   return (
     <div>
       {/* Page Hero */}
@@ -50,36 +43,46 @@ export default function Services() {
 
       {/* Services Grid */}
       <section className="max-w-7xl mx-auto px-6 py-20">
-        <div className="grid md:grid-cols-2 gap-8">
-          {services.map((s) => (
-            <div
-              key={s.title}
-              className="bg-studio-charcoal border border-studio-gray rounded-2xl p-8 hover:border-studio-bluelight hover:-translate-y-1 transition-all duration-300"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-mono text-xl uppercase tracking-wide text-studio-white font-bold">
-                  {s.title}
-                </h3>
-                <span className="font-mono text-studio-bluelight text-sm">{s.price}</span>
-              </div>
-              <p className="text-studio-white/70 font-body mb-6">{s.desc}</p>
-              <ul className="space-y-2 mb-8">
-                {s.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-studio-white/60 text-sm font-body">
-                    <span className="w-1.5 h-1.5 rounded-full bg-studio-bluelight" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                to="/book"
-                className="inline-block bg-studio-blue hover:bg-studio-bluelight transition-all duration-300 text-white px-6 py-2 rounded-md font-mono uppercase tracking-widest text-xs font-semibold"
+        {loading ? (
+          <p className="text-studio-white/60 font-body text-center">Loading services...</p>
+        ) : services.length === 0 ? (
+          <p className="text-studio-white/60 font-body text-center">
+            Services coming soon — check back shortly.
+          </p>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-8">
+            {services.map((s) => (
+              <div
+                key={s.id}
+                className="bg-studio-charcoal border border-studio-gray rounded-2xl p-8 hover:border-studio-bluelight hover:-translate-y-1 transition-all duration-300"
               >
-                Book This
-              </Link>
-            </div>
-          ))}
-        </div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-mono text-xl uppercase tracking-wide text-studio-white font-bold">
+                    {s.title}
+                  </h3>
+                  <span className="font-mono text-studio-bluelight text-sm">{s.price}</span>
+                </div>
+                <p className="text-studio-white/70 font-body mb-6">{s.description}</p>
+                {s.features?.length > 0 && (
+                  <ul className="space-y-2 mb-8">
+                    {s.features.map((f, i) => (
+                      <li key={i} className="flex items-center gap-2 text-studio-white/60 text-sm font-body">
+                        <span className="w-1.5 h-1.5 rounded-full bg-studio-bluelight" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <Link
+                  to="/book"
+                  className="inline-block bg-studio-blue hover:bg-studio-bluelight transition-all duration-300 text-white px-6 py-2 rounded-md font-mono uppercase tracking-widest text-xs font-semibold"
+                >
+                  Book This
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Equipment strip */}

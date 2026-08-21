@@ -15,6 +15,8 @@ import Signup from "./pages/Signup";
 import AdminDashboard from "./pages/AdminDashboard";
 import MyMessages from "./pages/MyMessages";
 import MyBookings from "./pages/MyBookings";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -36,6 +38,8 @@ function App() {
               <Route path="/my-messages" element={<ProtectedRoute> <MyMessages /> </ProtectedRoute>}/>
               <Route path="/admin" element={<ProtectedRoute adminOnly> <AdminDashboard /> </ProtectedRoute>}/>
               <Route path="/my-bookings" element={<ProtectedRoute> <MyBookings /> </ProtectedRoute>}/>
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               
             </Routes>
           </main>

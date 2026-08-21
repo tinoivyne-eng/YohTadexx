@@ -1,56 +1,28 @@
-import { useState } from "react";
-
-const tracks = [
-  {
-    title: "Midnight Drive",
-    artist: "Kay Sol",
-    genre: "R&B",
-    cover: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80",
-    youtubeId: "", // paste the YouTube video ID here, e.g. "dQw4w9WgXcQ"
-  },
-  {
-    title: "No Ceiling",
-    artist: "Rell Tha Don",
-    genre: "Hip-Hop",
-    cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=600&q=80",
-    youtubeId: "",
-  },
-  {
-    title: "Golden Hour",
-    artist: "Ava Lune",
-    genre: "Afrobeats",
-    cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80",
-    youtubeId: "",
-  },
-  {
-    title: "Static",
-    artist: "Nova Wren",
-    genre: "Alt-Pop",
-    cover: "https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?auto=format&fit=crop&w=600&q=80",
-    youtubeId: "",
-  },
-  {
-    title: "Concrete Dreams",
-    artist: "Jae Marlo",
-    genre: "Hip-Hop",
-    cover: "https://images.unsplash.com/photo-1524650359799-5be906931e5a?auto=format&fit=crop&w=600&q=80",
-    youtubeId: "",
-  },
-  {
-    title: "Echoes",
-    artist: "Kay Sol",
-    genre: "R&B",
-    cover: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=600&q=80",
-    youtubeId: "",
-  },
-];
-
-const genres = ["All", "Hip-Hop", "R&B", "Afrobeats", "Alt-Pop"];
+import { useEffect, useState } from "react";
+import { supabase } from "../supabaseClient";
 
 export default function Portfolio() {
+  const [tracks, setTracks] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
-  const [activeTrack, setActiveTrack] = useState(null); // holds the track object for the open modal
+  const [activeTrack, setActiveTrack] = useState(null);
 
+  useEffect(() => {
+    const fetchTracks = async () => {
+      const { data, error } = await supabase
+        .from("portfolio_tracks")
+        .select("*")
+        .order("sort_order", { ascending: true });
+
+      if (error) console.error(error);
+
+      setTracks(data || []);
+      setLoading(false);
+    };
+    fetchTracks();
+  }, []);
+
+  const genres = ["All", ...new Set(tracks.map((t) => t.genre).filter(Boolean))];
   const filtered = filter === "All" ? tracks : tracks.filter((t) => t.genre === filter);
 
   return (
@@ -73,62 +45,72 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* Filters */}
-      <section className="max-w-7xl mx-auto px-6 pt-12">
-        <div className="flex flex-wrap gap-3 font-mono text-xs uppercase tracking-widest">
-          {genres.map((g) => (
-            <button
-              key={g}
-              onClick={() => setFilter(g)}
-              className={`px-4 py-2 rounded-md border transition-all duration-300 ${
-                filter === g
-                  ? "bg-studio-blue border-studio-blue text-white"
-                  : "border-studio-gray text-studio-white/60 hover:border-studio-bluelight hover:text-studio-bluelight"
-              }`}
-            >
-              {g}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Grid */}
-      <section className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filtered.map((t, i) => (
-            <div
-              key={i}
-              className="bg-studio-charcoal border border-studio-gray rounded-2xl overflow-hidden hover:border-studio-bluelight hover:-translate-y-1 transition-all duration-300 group"
-            >
-              <div
-                className="h-56 bg-cover bg-center relative"
-                style={{ backgroundImage: `url('${t.cover}')` }}
-              >
-                <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
-                  <button
-                    onClick={() => setActiveTrack(t)}
-                    className="w-14 h-14 rounded-full bg-studio-blue/90 hover:bg-studio-bluelight flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100"
-                    aria-label={`Play ${t.title}`}
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              <div className="p-5">
-                <h3 className="font-mono text-studio-white uppercase tracking-wide font-bold">
-                  {t.title}
-                </h3>
-                <p className="text-studio-white/60 text-sm font-body mt-1">{t.artist}</p>
-                <span className="inline-block mt-3 text-xs font-mono text-studio-bluelight uppercase tracking-widest">
-                  {t.genre}
-                </span>
-              </div>
+      {loading ? (
+        <p className="text-studio-white/60 font-body text-center py-20">Loading tracks...</p>
+      ) : tracks.length === 0 ? (
+        <p className="text-studio-white/60 font-body text-center py-20">
+          Portfolio coming soon — check back shortly.
+        </p>
+      ) : (
+        <>
+          {/* Filters */}
+          <section className="max-w-7xl mx-auto px-6 pt-12">
+            <div className="flex flex-wrap gap-3 font-mono text-xs uppercase tracking-widest">
+              {genres.map((g) => (
+                <button
+                  key={g}
+                  onClick={() => setFilter(g)}
+                  className={`px-4 py-2 rounded-md border transition-all duration-300 ${
+                    filter === g
+                      ? "bg-studio-blue border-studio-blue text-white"
+                      : "border-studio-gray text-studio-white/60 hover:border-studio-bluelight hover:text-studio-bluelight"
+                  }`}
+                >
+                  {g}
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
+
+          {/* Grid */}
+          <section className="max-w-7xl mx-auto px-6 py-12">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filtered.map((t) => (
+                <div
+                  key={t.id}
+                  className="bg-studio-charcoal border border-studio-gray rounded-2xl overflow-hidden hover:border-studio-bluelight hover:-translate-y-1 transition-all duration-300 group"
+                >
+                  <div
+                    className="h-56 bg-cover bg-center relative bg-studio-black"
+                    style={{ backgroundImage: t.cover_url ? `url('${t.cover_url}')` : undefined }}
+                  >
+                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
+                      <button
+                        onClick={() => setActiveTrack(t)}
+                        className="w-14 h-14 rounded-full bg-studio-blue/90 hover:bg-studio-bluelight flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 scale-90 group-hover:scale-100"
+                        aria-label={`Play ${t.title}`}
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <h3 className="font-mono text-studio-white uppercase tracking-wide font-bold">
+                      {t.title}
+                    </h3>
+                    <p className="text-studio-white/60 text-sm font-body mt-1">{t.artist}</p>
+                    <span className="inline-block mt-3 text-xs font-mono text-studio-bluelight uppercase tracking-widest">
+                      {t.genre}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
 
       {/* Video Modal */}
       {activeTrack && (
@@ -136,10 +118,7 @@ export default function Portfolio() {
           className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center px-4"
           onClick={() => setActiveTrack(null)}
         >
-          <div
-            className="w-full max-w-3xl"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="w-full max-w-3xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="font-mono text-studio-white uppercase tracking-wide font-bold">
@@ -159,11 +138,11 @@ export default function Portfolio() {
             </div>
 
             <div className="aspect-video w-full rounded-xl overflow-hidden border border-studio-gray">
-              {activeTrack.youtubeId ? (
+              {activeTrack.youtube_id ? (
                 <iframe
                   width="100%"
                   height="100%"
-                  src={`https://www.youtube.com/embed/${activeTrack.youtubeId}?autoplay=1`}
+                  src={`https://www.youtube.com/embed/${activeTrack.youtube_id}?autoplay=1`}
                   title={activeTrack.title}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
